@@ -45,8 +45,16 @@ topic_transfer  <- "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df5
 #########################################################################################
 start_block <- 17578536  
 add_data <- data.frame(fromJSON(getHistorical_tokentransfert(start_block, end_block, weth_address, topic_transfer, wallet_buys_1, api_key)))
-add_transfer_data <- add_data   
-#Transform data into the readable format
+i <- 1
+interim <- data.frame(result.blockNumber = tail(as.numeric(add_data$result.blockNumber),1))
+while (tail(as.numeric(interim$result.blockNumber),1) < terminate_block) {
+  start_block <- tail(as.numeric(interim$result.blockNumber),1) + 1 #shift the start of new download
+  interim <- data.frame(fromJSON(getHistorical_tokentransfert(start_block, end_block, weth_address, topic_transfer, wallet_buys_1, api_key)))
+  add_data <- rbind(interim,add_data)
+  print(i)
+  i=i+1
+}
+add_transfer_data <- add_data  
 add_transfer_data <- add_transfer_data[,c(5,6,9,10,8,12)]
 colnames(add_transfer_data) <- c("amount","block","gas_price","gas_used","timestamp","txhash")
 add_transfer_data$weth <- as.numeric(add_transfer_data$amount)/10^18
@@ -55,10 +63,19 @@ add_transfer_data$timestamp <- as.numeric(add_transfer_data$timestamp)
 add_transfer_data$gas <- as.numeric(add_transfer_data$gas_price)*as.numeric(add_transfer_data$gas_used)/10^18
 add_transfer_data$date <- as.POSIXct(add_transfer_data$timestamp, origin = "1970-01-01", tz = "GMT")
 add_transfer_data_1 <- add_transfer_data
-
+#
+start_block <- 17578536 
 add_data <- data.frame(fromJSON(getHistorical_tokentransfert(start_block, end_block, weth_address, topic_transfer, wallet_buys_2, api_key)))
-add_transfer_data <- add_data       
-#Transform data into the readable format
+i <- 1
+interim <- data.frame(result.blockNumber = tail(as.numeric(add_data$result.blockNumber),1))
+while (tail(as.numeric(interim$result.blockNumber),1) < terminate_block) {
+  start_block <- tail(as.numeric(interim$result.blockNumber),1) + 1 #shift the start of new download
+  interim <- data.frame(fromJSON(getHistorical_tokentransfert(start_block, end_block, weth_address, topic_transfer, wallet_buys_1, api_key)))
+  add_data <- rbind(interim,add_data)
+  print(i)
+  i=i+1
+}
+add_transfer_data <- add_data                         
 add_transfer_data <- add_transfer_data[,c(5,6,9,10,8,12)]
 colnames(add_transfer_data) <- c("amount","block","gas_price","gas_used","timestamp","txhash")
 add_transfer_data$weth <- as.numeric(add_transfer_data$amount)/10^18
